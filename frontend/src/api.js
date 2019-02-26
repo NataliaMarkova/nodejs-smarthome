@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const serverUrl = 'http://localhost:3005';
 const devicesUrl = `${serverUrl}/device`;
+const groupUrl = `${serverUrl}/group`;
 
 export async function getDevices() {
   const response =  await axios.get(`${devicesUrl}`);
@@ -14,13 +15,11 @@ export async function getDeviceById(deviceId) {
 }
 
 export async function addDevice(device) {
-  const response = await axios.post(`${devicesUrl}/`, device);
-  return response.data;
+  return axios.post(`${devicesUrl}/`, device);
 }
 
 export async function removeDevice(deviceId) {
-  const response = await axios.delete(`${devicesUrl}`, { data: { deviceId: deviceId } } );
-  return response;
+  return axios.delete(`${devicesUrl}`, { data: { deviceId: deviceId } } );
 }
 
 export async function updateDevice(deviceId, data) {
@@ -42,4 +41,38 @@ export async function switchOff(deviceId) {
 export async function getDeviceLog(deviceId) {
   const response = await axios.get(`${devicesUrl}/${deviceId}/logs`);
   return response.data;
+}
+
+export async function getGroups() {
+  const response =  await axios.get(`${groupUrl}`);
+  return response.data;  
+}
+
+export async function getGroupById(groupId) {
+  const response = await axios.get(`${groupUrl}/${groupId}`);
+  return response.data;
+}
+
+export async function addGroup(group) {
+  return axios.post(`${groupUrl}/`, group);
+}
+
+export async function removeGroup(groupId) {
+  return axios.delete(`${groupUrl}`, { data: { groupId: groupId } } );
+}
+
+export async function updateGroup(groupId, data) {
+  return axios.put(`${groupUrl}/${groupId}`, data);
+}
+
+export async function switchGroupOn(groupId) {
+  await updateGroup(groupId, {
+    state: 'on'
+  });
+}
+
+export async function switchGroupOff(groupId) {
+  await updateGroup(groupId, {
+    state: 'off'
+  });
 }

@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const deviceRouter = require('./routes/devices');
+const groupRouter = require('./routes/groups');
 const corsMiddleware = require('./middlewares/cors');
 const mongoose = require('mongoose');
 
@@ -11,6 +12,7 @@ app.use(corsMiddleware);
 app.use(express.json());
 
 app.use('/device', deviceRouter);
+app.use('/group', groupRouter);
 
 app.get('/', (request, response) => {
   response.send('It works great!');

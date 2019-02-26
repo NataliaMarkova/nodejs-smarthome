@@ -18,7 +18,7 @@ function sendRequest(url) {
 
 function deviceAdaptor(device) {
   return {
-    id: device.id,
+    id: device._id,
     name: device.name,
     address: device.address,
     port: device.port,
