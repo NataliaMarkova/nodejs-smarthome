@@ -1,0 +1,9 @@
+{
+  "name": "UI part for Node JS sample project in scope of JS Mentoring Program",
+  "short_name": "JS Mentoring Program Node JS UI",
+  "start_url": "/",
+  "theme_color": "#000000",
+  "background_color": "#FFFFFF",
+  "display": "fullscreen",
+  "orientation": "portrait"
+}
