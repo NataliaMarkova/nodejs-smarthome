@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const Device = require('../models/device');
 const Group = require('../models/group');
+const Device = require('../models/device');
 
 function groupAdaptor(group) {
   return {
@@ -14,6 +14,8 @@ function groupAdaptor(group) {
 function deviceAdaptor(device) {
   return {
     id: device._id,
+    address: device.address,
+    port: device.port,
     name: device.name
   }
 }
@@ -45,8 +47,6 @@ router.put('/:id', async (request, response) => {
   const groupId = request.params.id;
   const data = request.body;
 
-  console.log(data.state);
-
   try {
     const group = await Group.findById(groupId);
     await group.update({
@@ -54,9 +54,51 @@ router.put('/:id', async (request, response) => {
       state: data.state === 'on'
     }).exec();
 
-    console.log(group);
-
     response.sendStatus(200);   
+  } catch {
+    response.sendStatus(404);  
+  }
+});
+
+router.get('/:id/device', async (request, response) => {
+  const groupId = request.params.id;
+  
+  try {
+    const group = await Group.findById(groupId).exec();
+    response.json(group.devices.map(deviceAdaptor));
+  } catch {
+    response.sendStatus(404);  
+  }
+});
+
+router.put('/:id/device', async (request, response) => {
+  const groupId = request.params.id;
+  const deviceId = request.body.deviceId;
+
+  try {
+    const group = await Group.findById(groupId).exec();
+    const device = await Device.findById(deviceId).exec();
+    group.devices.push(device);
+    await group.save();
+
+    response.sendStatus(200);
+  } catch {
+    response.sendStatus(404);  
+  }
+});
+
+router.delete('/:id/device', async (request, response) => {
+  const groupId = request.params.id;
+  const deviceId = request.body.deviceId;
+
+  try {
+    const group = await Group.findById(groupId).exec();
+    const device = await Device.findById(deviceId).exec();
+    const deviceIndex = group.devices.map(device => device.id).indexOf(device.id);
+    group.devices.splice(deviceIndex, 1);
+    await group.save();
+
+    response.sendStatus(200);
   } catch {
     response.sendStatus(404);  
   }

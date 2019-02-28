@@ -76,3 +76,16 @@ export async function switchGroupOff(groupId) {
     state: 'off'
   });
 }
+
+export async function getGroupDevices(groupId) {
+  const response = await axios.get(`${groupUrl}/${groupId}/device`);
+  return response.data;
+}
+
+export async function addDeviceToGroup(groupId, deviceId) {
+  return axios.put(`${groupUrl}/${groupId}/device`, { deviceId: deviceId });
+}
+
+export async function removeDeviceFromGroup(groupId, deviceId) {
+  return axios.delete(`${groupUrl}/${groupId}/device`, { data: { deviceId: deviceId } });
+}
