@@ -1,24 +1,7 @@
 const router = require('express').Router();
 const Group = require('../models/group');
 const Device = require('../models/device');
-
-function groupAdaptor(group) {
-  return {
-    id: group._id,
-    name: group.name,
-    state: group.state ? 'on' : 'off',
-    devices: group.devices.map(deviceAdaptor)
-  }
-};
-
-function deviceAdaptor(device) {
-  return {
-    id: device._id,
-    address: device.address,
-    port: device.port,
-    name: device.name
-  }
-}
+const { deviceAdaptor, groupAdaptor, requestHelper} = require('../utils');
 
 router.get('/', async (request, response) => {
   const groups = await Group.find().exec();
@@ -49,14 +32,22 @@ router.put('/:id', async (request, response) => {
 
   try {
     const group = await Group.findById(groupId);
-    await group.update({
+    const currentState = group.state;
+    await group.updateOne({
       ...data,
       state: data.state === 'on'
     }).exec();
 
-    response.sendStatus(200);   
+    if (currentState !== data.state) {
+      group.devices.forEach( async(deviceId) => {
+        const devicePath = `/device/${deviceId}`;
+        await requestHelper.doPut(devicePath, { state: data.state });
+      });
+    }
+
+    response.sendStatus(200);
   } catch {
-    response.sendStatus(404);  
+    response.sendStatus(404);
   }
 });
 
@@ -65,7 +56,8 @@ router.get('/:id/device', async (request, response) => {
   
   try {
     const group = await Group.findById(groupId).exec();
-    response.json(group.devices.map(deviceAdaptor));
+    const devices = await Device.find( { _id: { $in: group.devices } }).exec();
+    response.json(devices.map(deviceAdaptor));
   } catch {
     response.sendStatus(404);  
   }
@@ -77,8 +69,7 @@ router.put('/:id/device', async (request, response) => {
 
   try {
     const group = await Group.findById(groupId).exec();
-    const device = await Device.findById(deviceId).exec();
-    group.devices.push(device);
+    group.devices.push(deviceId);
     await group.save();
 
     response.sendStatus(200);
@@ -93,8 +84,7 @@ router.delete('/:id/device', async (request, response) => {
 
   try {
     const group = await Group.findById(groupId).exec();
-    const device = await Device.findById(deviceId).exec();
-    const deviceIndex = group.devices.map(device => device.id).indexOf(device.id);
+    const deviceIndex = group.devices.indexOf(deviceId);
     group.devices.splice(deviceIndex, 1);
     await group.save();
 

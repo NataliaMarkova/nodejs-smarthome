@@ -11,7 +11,7 @@ export default class GroupForm extends PureComponent {
     super(props);
 
     this.state = {
-      groupDevices: this.props.group.devices,
+      groupDevices: [],
       allDevices: [],
       availableDevices: [],
       chooseDeviceModalIsOpen: false
@@ -22,7 +22,15 @@ export default class GroupForm extends PureComponent {
     this.setState({
       allDevices: await getDevices()
     });
-  }
+    await this.refreshGroupDevices();
+  };
+
+  refreshGroupDevices = async() => {
+    const groupId = this.props.group.id;
+    if (groupId) {
+      this.setState({ groupDevices: await getGroupDevices(groupId) });
+    }
+  };
 
   handleCancelClick = () => {
     window.history.back();
@@ -70,14 +78,6 @@ export default class GroupForm extends PureComponent {
       await removeDeviceFromGroup(groupId, deviceId);
     }
     this.refreshGroupDevices();
-  };
-
-  refreshGroupDevices = async() => {
-    const groupId = this.props.group.id;
-    if (groupId) {
-      const groupDevices =  await getGroupDevices(groupId);
-      this.setState({ groupDevices: groupDevices });
-    }
   };
 
   render() {

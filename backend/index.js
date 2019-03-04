@@ -3,11 +3,13 @@ const app = express();
 const deviceRouter = require('./routes/devices');
 const groupRouter = require('./routes/groups');
 const corsMiddleware = require('./middlewares/cors');
+const logger = require('./middlewares/logger');
 const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost:27017/smartHome');
 
 app.use(corsMiddleware);
+app.use(logger);
 
 app.use(express.json());
 

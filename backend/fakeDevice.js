@@ -5,7 +5,7 @@ const port = parseInt(process.argv[2]);
 let deviceState = false;
 
 app.get('/cm', (request, response) => {
-  const action = request.query.cmdn;
+  const action = request.query.cmnd;
 
   switch (action) {
     case 'Power On': {
@@ -13,7 +13,7 @@ app.get('/cm', (request, response) => {
       break;
     }
     case 'Power Off': {
-      deviceState = true;
+      deviceState = false;
       break;
     }
     default: {
